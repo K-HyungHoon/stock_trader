@@ -10,9 +10,14 @@ Hallym Univ. Reinforcement Project
 
 ### Data
 
+- [ ] : Database
 - [ ] : Data Collection
 - [ ] : Data Analysis
-- [ ] : Data Preprocessing
+
+### Quant
+
+- [ ] : Portfolio
+- [ ] : Algorithm
 
 ### Env
 
@@ -22,8 +27,8 @@ Hallym Univ. Reinforcement Project
 
 ### Model
 
-- [ ] : Model Build
-- [ ] : Model Test
+- [ ] : Deep Learning Network
+- [ ] : Experiment
 
 ### Application
 
