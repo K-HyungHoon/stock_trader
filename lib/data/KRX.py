@@ -59,7 +59,7 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
         return df
 
-    # JJM Fucking
+    # JJM
     def get_ticker(self, code, from_date, to_date):
         url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
         header = {'User-Agent': 'Chrome/78 Safari/537'}
