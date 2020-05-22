@@ -84,7 +84,7 @@ class KRX:
 
         r = requests.post(url, headers=header, params=param)
 
-        df = pd.read_excel(BytesIO(r.content))
+        df = pd.read_excel(BytesIO(r.content), thousands=',')
         return df
 
     # 통계 -> 주식 -> 종목시세 -> 전체종목 시세
