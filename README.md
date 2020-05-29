@@ -1,25 +1,25 @@
-# Stock Trader
+# ⏰ Stock Trader 
 
 Hallym Univ. Reinforcement Project
 
 - korea stock market : KOSPI200
 - reinforcement learning
 
-## Day Bot
+## 📳 Day Bot 
 
 KOSPI200에서 투자할 회사를 선택해주는 Bot
 
-# Data
+## 🌈 Data
 
 - KRX 한국 거래소에서 수집
 
-### Download
+#### Download
 
 ```shell script
 python main.py --download
 ```
 
-### File Structure
+#### File Structure
 
 ```
 data | KOSPI200 | company 1
@@ -30,9 +30,9 @@ data | KOSPI200 | company 1
      | KRX_list
 ```
 
-# Env
+## 🍩 Env
 
-### Reward
+#### Reward
 ```
 # lib/env/market.py
 
@@ -43,16 +43,16 @@ data | KOSPI200 | company 1
 
 - 수정 요망
 
-### Render
+#### Render
 
 - 실시간 Confusion Matrix 준비중
 
 
-# Model
+## 🏓 Model
 
 - Policy Gradient
 
-### Input Data
+#### Input Data
 
 - Input Shape : (num company, window size, num feature)
 
@@ -67,12 +67,12 @@ data | KOSPI200 | company 1
     + 대비율 : Change(t) / Close(t-1)
     
 
-### Structure
+#### Structure
 
 ```python
 # lib/agent/PG.py
 
-Cmodel = tf.keras.Sequential()
+model = tf.keras.Sequential()
             model.add(Conv2D(128, kernel_size=(1, 3), strides=1, activation="relu", input_shape=input_shape))
             model.add(MaxPool2D(pool_size=(1, 2)))
             model.add(Conv2D(64, kernel_size=(1, 4), strides=1, activation="relu"))
