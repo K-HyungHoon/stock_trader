@@ -7,16 +7,20 @@ from lib.data import get_data
 from lib.agent.PG import PG
 # parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--num_episode', type=int, default=1)
-parser.add_argument('--window_size', type=int, default=5)
+parser.add_argument('--num_episode', type=int, default=1000)
+parser.add_argument('--window_size', type=int, default=10)
 parser.add_argument('--path', type=str, default="data/KOSPI200")
 args = parser.parse_args()
 
 # get data
-datas, labels = get_data(args.path)
+# 'CO', 'HO', 'LO', 'OO', '대비율'
+datas, changes, labels = get_data(args.path)
+
+num_company, period, num_feature = datas.shape
 
 # parameter
-input_shape = (datas.shape[1], args.window_size, datas.shape[2])
+input_shape = (num_company, args.window_size, num_feature)
+
 optimizer = tf.keras.optimizers.Adam()
 loss = 'binary_crossentropy'
 
@@ -29,19 +33,18 @@ env = Kospi200_Env(datas, labels, window_size=args.window_size)
 
 # train
 for e in range(args.num_episode):
-    # state = np.random.random((1, 200, 10, 5))
     state = env.reset()
-
+    total_reward = 0
     while True:
-        env.render(mode='print')
+        env.render()
 
         action = agent.get_action(state)
-        next_state, reward = env.step(action)
+        next_state, reward, done = env.step(action)
 
-        loss = agent.learn(state, reward, action)
+        loss = agent.learn(state, reward)
+        total_reward += reward
 
-        print(loss)
+        if done:
+            break
 
         state = next_state
-
-        break

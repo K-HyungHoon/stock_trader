@@ -8,7 +8,7 @@ class PG:
                  input_shape,
                  optimizer,
                  loss,
-                 lr=0.001):
+                 lr=0.0001):
 
         self.lr = lr
 
@@ -34,12 +34,14 @@ class PG:
     def get_action(self, state):
         output = self.model(state)
 
-        output = tf.round(output)
+        output = output.numpy()
+
+        # output[output >= 0.5] = 1
+        # output[output < 0.5] = 0
 
         return output
 
-    def learn(self, state, reward, action):
+    def learn(self, state, reward):
         loss = self.model.train_on_batch(state, reward)
 
         return loss
-

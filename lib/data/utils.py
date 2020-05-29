@@ -31,7 +31,7 @@ def parse(path):
 
         # 기업 정보
         # [년/월/일, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주)]
-        ticker = krx.get_ticker(code['full_code'], '20200101', '20200515')
+        ticker = krx.get_ticker(code['full_code'], '20180101', '20200515')
         ticker = ticker.sort_values('년/월/일')
 
         # 전날 종가 / 전날 시가 (Close(t-1) / Open(t-1))
@@ -88,6 +88,7 @@ def parse(path):
 
 def get_data(path):
     datas = []
+    changes = []
     labels = []
 
     for file_name in os.listdir(path):
@@ -97,11 +98,12 @@ def get_data(path):
 
         # 기업 정보
         # [날짜, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주), CO, HO, LO, OO, OC, HC, LC, CC, 대비율, 거래율, 수익률]
-        datas.append(df_company[['년/월/일', 'CO', 'HO', 'LO', 'OO', '대비율']].values.tolist())
+        datas.append(df_company[['CO', 'HO', 'LO', 'OO', '거래율', '대비율']].values.tolist())
+        changes.append(df_company['대비율'].values.astype(float).tolist())
 
-    datas = np.array(datas).transpose(1, 0, 2)
+    datas = np.array(datas)
 
-    return datas, labels
+    return datas, changes, labels
 
 
 if __name__ == "__main__":
