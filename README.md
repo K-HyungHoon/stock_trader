@@ -60,12 +60,12 @@ data | KOSPI200 | company 1
 - Num company : 200 -> 200개의 회사 데이터
 - Window size : 10  -> 10일씩 본다. 즉, 2주
 - Num feature : CO, HO, LO, OO, 거래율, 대비율
-    + CO : $$`\frac{Close_{t-1}}{Open_{t-1}}`$$
-    + HO : $$\frac{High_{t-1}}{Open_{t-1}}$$
-    + LO : $$\frac{Low_{t-1}}{Open_{t-1}}$$
-    + OO : $$\frac{Open_{t}}{Open_{t-1}}$$
-    + 거래율 : $$\frac{Volume_{t}}{Total_Share}$$
-    + 대비율 : $$\frac{Change_{t}}{Close_{t-1}}$$
+    + CO : $`\frac{Close_{t-1}}{Open_{t-1}}`$
+    + HO : $`\frac{High_{t-1}}{Open_{t-1}}`$
+    + LO : $`\frac{Low_{t-1}}{Open_{t-1}}`$
+    + OO : $`\frac{Open_{t}}{Open_{t-1}}`$
+    + 거래율 : $`\frac{Volume_{t}}{Total_Share}`$
+    + 대비율 : $`\frac{Change_{t}}{Close_{t-1}}`$
     
 
 ### Structure
