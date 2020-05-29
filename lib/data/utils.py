@@ -6,6 +6,13 @@ from lib.data.KRX import KRX
 
 
 def parse(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+    except OSError:
+        print('Error: Creating Directory')
+
     krx = KRX()
 
     # KRX 전체 기업
@@ -18,19 +25,13 @@ def parse(path):
     kospi_200 = krx.get_kospi_200('20200515')
     # kospi_200.to_excel(path + '/KOSPI200.xlsx')
 
-    try:
-        if not os.path.exists(path + '/KOSPI200'):
-            os.makedirs(path + '/KOSPI200')
-    except OSError:
-        print('Error: Creating Directory')
-
     for i in tqdm(kospi_200['종목코드'], total=len(kospi_200['종목코드'])):
         i = 'A' + str(i).zfill(6)
         code = company.loc[company['short_code'] == i, ['full_code', 'codeName']]
 
         # 기업 정보
         # [년/월/일, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주)]
-        ticker = krx.get_ticker(code['full_code'], '20200101', '20200515')
+        ticker = krx.get_ticker(code['full_code'], '20180101', '20200515')
         ticker = ticker.sort_values('년/월/일')
 
         # 전날 종가 / 전날 시가 (Close(t-1) / Open(t-1))
@@ -77,25 +78,37 @@ def parse(path):
         yield_ratio = np.log(ticker['종가'] / ticker['종가'].shift(1))
         ticker['수익률'] = yield_ratio
 
+        ticker.drop(ticker.index[0], inplace=True)
+
         # 평균 수익률
         # 샤프 지수
+        ticker.to_excel('{}/{}_{}.xlsx'.format(path, code['full_code'].values[0], code['codeName'].values[0]),
+                        index=False)
 
-        ticker.to_excel(path + '/KOSPI200/{}_{}.xlsx'.format(code['full_code'].values[0], code['codeName'].values[0]), index=False)
 
+def get_data(path):
+    datas = []
+    changes = []
+    labels = []
 
-def preprocessing(root_path, save_path):
-    samples = []
-
-    for path in os.listdir(root_path):
-        full_path = os.path.join(root_path, path)
+    for file_name in os.listdir(path):
+        full_path = os.path.join(path, file_name)
         df_company = pd.read_excel(full_path)
-        df_company['종목코드'] = path.split('_')[0]
+        labels.append(file_name.split('_')[0])
 
         # 기업 정보
         # [날짜, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주), CO, HO, LO, OO, OC, HC, LC, CC, 대비율, 거래율, 수익률]
-        samples.append(df_company[['종목코드', '년/월/일', '시가', '고가', '저가', '종가']].values.tolist())
+        datas.append(df_company[['CO', 'HO', 'LO', 'OO', '거래율', '대비율']].values.tolist())
+        changes.append(df_company['대비율'].values.astype(float).tolist())
 
-    samples = np.array(samples).transpose([1, 0, 2])
-    np.save(save_path, samples)
+    datas = np.array(datas)
 
-    print(f"SAVED {save_path}.npy")
+    return datas, changes, labels
+
+
+if __name__ == "__main__":
+    root_path = 'data'
+    data_path = 'KOSPI200'
+    path = os.path.join(root_path, data_path)
+
+    parse(path)
