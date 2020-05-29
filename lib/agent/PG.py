@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
 
 
 class PG:
@@ -11,6 +11,8 @@ class PG:
                  lr=0.0001):
 
         self.lr = lr
+
+        self.memory_reset()
 
         self.model = self.build(input_shape)
         self.model.compile(optimizer=optimizer,
@@ -32,16 +34,25 @@ class PG:
         self.model.summary()
 
     def get_action(self, state):
-        output = self.model(state)
+        action = self.model.predict(state, batch_size=1).flatten()
 
-        output = output.numpy()
+        return action
 
-        # output[output >= 0.5] = 1
-        # output[output < 0.5] = 0
+    def learn(self):
+        state = np.vstack(self.state_memory)
+        reward = np.vstack(self.reward_memory)
 
-        return output
+        loss = self.model.train_on_batch(state,
+                                         reward)
 
-    def learn(self, state, reward):
-        loss = self.model.train_on_batch(state, reward)
+        self.memory_reset()
 
         return loss
+
+    def memory_reset(self):
+        self.state_memory = []
+        self.reward_memory = []
+
+    def memorize(self, state, reward):
+        self.state_memory.append(state)
+        self.reward_memory.append(reward)
