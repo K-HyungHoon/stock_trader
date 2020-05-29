@@ -2,7 +2,7 @@ import gym
 import numpy as np
 import tensorflow.keras.backend as K
 from gym import spaces
-from .render import Confusion
+from lib.env.render import Confusion
 
 
 class Kospi200_Env(gym.Env):

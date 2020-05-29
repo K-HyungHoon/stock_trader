@@ -1,12 +1,10 @@
+import os
 import requests
 import pandas as pd
 from io import BytesIO
 
 
 class KRX:
-    def __init__(self):
-        pass
-
     def get_company(self):
         url = "http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx"
         header = {"User-Agent": "Mozilla/5.0"}
@@ -145,7 +143,7 @@ class KRX:
                 'pagePath': '/contents/MKD/13/1302/13020401/MKD13020401.jsp',
             }
         else:
-            ValueError("data is str, list")
+            ValueError("utils is str, list")
 
         header_data = {
             'User-Agent': 'Chrome/78 Safari/537',
@@ -197,7 +195,6 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
         return df
 
-    """
     # PER
     def get_per(self, from_date='20080101', to_date='20200505', period='day', type='kospi'):
         get_req_url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
@@ -233,4 +230,3 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
 
         return df
-    """

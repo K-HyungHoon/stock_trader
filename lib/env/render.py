@@ -3,10 +3,6 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
-from lib.data import get_data
-
-datas, changes, labels = get_data('../data/KOSPI200')
-plt.bar()
 
 
 class Confusion:
