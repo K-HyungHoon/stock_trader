@@ -1,12 +1,10 @@
+import os
 import requests
 import pandas as pd
 from io import BytesIO
 
 
 class KRX:
-    def __init__(self):
-        pass
-
     def get_company(self):
         url = "http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx"
         header = {"User-Agent": "Mozilla/5.0"}
@@ -145,7 +143,7 @@ class KRX:
                 'pagePath': '/contents/MKD/13/1302/13020401/MKD13020401.jsp',
             }
         else:
-            ValueError("data is str, list")
+            ValueError("utils is str, list")
 
         header_data = {
             'User-Agent': 'Chrome/78 Safari/537',
@@ -197,9 +195,7 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
         return df
 
-    """
-    # PER
-    def get_per(self, from_date='20080101', to_date='20200505', period='day', type='kospi'):
+    def get_indices(self, from_date='20200505', to_date='20200505', period='day', type='kospi'):
         get_req_url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
 
         query_str_params = {
@@ -233,4 +229,40 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
 
         return df
-    """
+
+    def get_indices2(self):
+        url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
+        header = {'User-Agent': 'Chrome/78 Safari/537'}
+        param = {
+            'name': 'fileDown',
+            'filetype': 'xls',
+            'url': 'MKD/03/0304/03040101/mkd03040101T2_02',
+            'idx_cd': '1028',
+            'ind_tp_cd': '1',
+            'idx_ind_cd': '028',
+            'add_data_yn': '',
+            'bz_dd': '20200529',
+            'indexname': '%EC%A7%80%EC%88%98%EB%AA%85%EC%9D%84+%EC%9E%85%EB%A0%A5%ED%95%B4+%EC%A3%BC%EC%84%B8%EC%9A%94.',
+            'chartType': 'line',
+            'chartStandard': 'srate',
+            'fromdate': '20200427',
+            'todate': '20200529',
+            'pagePath': '/contents/MKD/03/0304/03040101/MKD03040101T2.jsp'
+        }
+
+        r = requests.get(url, headers=header, params=param)
+
+        url = 'http://file.krx.co.kr/download.jspx'
+        header = {
+            'Referer': "http://marketdata.krx.co.kr/mdi",
+            'User-Agent': 'Chrome/78 Safari/537'
+        }
+        param = {'code': r.content}
+
+        r = requests.post(url, headers=header, params=param)
+
+        df = pd.read_excel(BytesIO(r.content), thousands=',')
+        return df
+
+
+print(KRX().get_indices())
