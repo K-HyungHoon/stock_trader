@@ -263,6 +263,3 @@ class KRX:
 
         df = pd.read_excel(BytesIO(r.content), thousands=',')
         return df
-
-
-print(KRX().get_indices())

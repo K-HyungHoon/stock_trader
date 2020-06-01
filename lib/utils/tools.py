@@ -18,7 +18,7 @@ def get_data(path, name='KOSPI200'):
 
     data_path = os.path.join(path, name)
 
-    total_path = os.listdir(data_path)
+    total_path = os.listdir(data_path)[:10]
 
     for file_name in tqdm(total_path, total=len(total_path)):
         full_path = os.path.join(data_path, file_name)

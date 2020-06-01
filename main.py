@@ -12,11 +12,11 @@ def main(args):
     datas, changes, labels = get_data(args.path)
     num_company, period, num_feature = datas.shape
     # parameter
-    input_shape = (num_company, args.window_size, num_feature)
-    optimizer = tf.keras.optimizers.Adam()
-    loss = 'binary_crossentropy'
+    state_shape = (num_company, args.window_size, num_feature)
+    action_shape = num_company
     # agent
-    agent = PG(input_shape, optimizer, loss)
+    agent = PG(state_shape,
+               action_shape)
     agent.summary()
     # env
     env = Kospi200_Env(datas, changes, labels, window_size=args.window_size)
@@ -28,29 +28,25 @@ def main(args):
         state = env.reset()
 
         total_reward = 0
-        total_loss = 0
 
         while True:
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
-
-            agent.memorize(state, reward)
+            agent.memorize(state, action, reward)
 
             env.render(mode='confusion')
-            loss = agent.learn()
-            total_loss += loss
+            total_reward += reward
 
             if done:
+                agent.learn()
                 break
 
-            total_reward += reward
             state = next_state
 
         total_reward_log.append(sum(total_reward))
 
         print(f"\n + EPISODE: [{args.num_episode} / {e}] \n"
-              f"   + REWARD : {sum(total_reward)} \n"
-              f"   + LOSS   : {total_loss}")
+              f"   + REWARD : {sum(total_reward)}")
 
     plt.plot(total_reward_log)
     plt.show()

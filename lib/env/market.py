@@ -30,8 +30,6 @@ class Kospi200_Env(gym.Env):
         self.change = self.changes[self.current_step + self.window_size]
         self.reward = self.change * action
 
-        self._reward_scaling()
-
         if self.current_step >= self.period - self.window_size - 1:
             self.done = True
 
@@ -49,10 +47,6 @@ class Kospi200_Env(gym.Env):
     def _get_state(self):
         obs = self.history[:, self.current_step: self.current_step + self.window_size]
         return np.expand_dims(obs, axis=0)
-
-    def _reward_scaling(self):
-        self.reward = (self.reward - np.mean(self.reward)) / (np.std(self.reward) + 1e-7)
-        self.reward = K.constant(self.reward)
 
     def render(self, mode=None):
         if mode == 'print':
