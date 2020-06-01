@@ -9,17 +9,20 @@ from lib.agent.PG import PG
 
 def main(args):
     # get utils
-    datas, changes, labels = get_data(args.path)
+    datas, changes, labels, indices = get_data(args.path)
     num_company, period, num_feature = datas.shape
+
     # parameter
     input_shape = (num_company, args.window_size, num_feature)
     optimizer = tf.keras.optimizers.Adam()
     loss = 'binary_crossentropy'
+
     # agent
     agent = PG(input_shape, optimizer, loss)
     agent.summary()
+
     # env
-    env = Kospi200_Env(datas, changes, labels, window_size=args.window_size)
+    env = Kospi200_Env(datas, changes, labels, indices, window_size=args.window_size)
 
     total_reward_log = []
 
