@@ -9,50 +9,48 @@ from lib.agent.PG import PG
 
 def main(args):
     # get utils
-    # 'CO', 'HO', 'LO', 'OO', '대비율'
     datas, changes, labels = get_data(args.path)
-    print(f"Data Shape : {datas.shape}")
-
     num_company, period, num_feature = datas.shape
-
     # parameter
     input_shape = (num_company, args.window_size, num_feature)
-
     optimizer = tf.keras.optimizers.Adam()
     loss = 'binary_crossentropy'
-
     # agent
     agent = PG(input_shape, optimizer, loss)
     agent.summary()
-
     # env
-    env = Kospi200_Env(datas, labels, window_size=args.window_size)
+    env = Kospi200_Env(datas, changes, labels, window_size=args.window_size)
 
     total_reward_log = []
 
     # train
     for e in tqdm(range(args.num_episode), total=args.num_episode):
         state = env.reset()
+
         total_reward = 0
+        total_loss = 0
 
         while True:
-            env.render()
-
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
 
             agent.memorize(state, reward)
 
-            total_reward += reward
+            env.render(mode='confusion')
+            loss = agent.learn()
+            total_loss += loss
 
             if done:
-                loss = agent.learn()
                 break
 
+            total_reward += reward
             state = next_state
 
         total_reward_log.append(sum(total_reward))
-        print(sum(total_reward))
+
+        print(f"\n + EPISODE: [{args.num_episode} / {e}] \n"
+              f"   + REWARD : {sum(total_reward)} \n"
+              f"   + LOSS   : {total_loss}")
 
     plt.plot(total_reward_log)
     plt.show()
@@ -71,4 +69,5 @@ if __name__ == "__main__":
         print("Data Download...")
         download(args.path)
     else:
+        print("Market Start")
         main(args)

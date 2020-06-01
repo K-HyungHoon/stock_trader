@@ -7,10 +7,7 @@ class PG:
     def __init__(self,
                  input_shape,
                  optimizer,
-                 loss,
-                 lr=0.0001):
-
-        self.lr = lr
+                 loss):
 
         self.memory_reset()
 
@@ -24,8 +21,9 @@ class PG:
         model.add(Conv2D(128, kernel_size=(1, 3), strides=1, activation="relu", input_shape=input_shape))
         model.add(MaxPool2D(pool_size=(1, 2)))
         model.add(Conv2D(64, kernel_size=(1, 4), strides=1, activation="relu"))
-        model.add(Conv2D(1, kernel_size=1, activation="sigmoid"))
+        model.add(Conv2D(1, kernel_size=(1, 1), activation="relu"))
         model.add(Flatten())
+        model.add(Dense(200, activation="sigmoid"))
         model.build()
 
         return model

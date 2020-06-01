@@ -31,7 +31,7 @@ def download(path, name='KOSPI200'):
 
         # 기업 정보
         # [년/월/일, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주)]
-        ticker = krx.get_ticker(code['full_code'], '20190301', '20200515')
+        ticker = krx.get_ticker(code['full_code'], '20200102', '20200515')
         ticker = ticker.sort_values('년/월/일')
 
         # 전날 종가 / 전날 시가 (Close(t-1) / Open(t-1))
