@@ -16,9 +16,12 @@ def get_data(path, name='KOSPI200'):
     changes = []
     labels = []
 
-    data_path = os.path.join(path, name)
+    # 코스피 200 지수
+    df_indices = pd.read_excel(path + f'/{name}_indices.xlsx')
+    indices = df_indices['fluc_rt'].tolist()
 
-    total_path = os.listdir(data_path)[:10]
+    data_path = os.path.join(path, name)
+    total_path = os.listdir(data_path)
 
     for file_name in tqdm(total_path, total=len(total_path)):
         full_path = os.path.join(data_path, file_name)
@@ -36,4 +39,4 @@ def get_data(path, name='KOSPI200'):
     datas = np.array(datas)
     changes = np.array(changes).transpose((1, 0))
 
-    return datas, changes, labels
+    return datas, changes, labels, indices
