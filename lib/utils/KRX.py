@@ -1,4 +1,4 @@
-import os
+import json
 import requests
 import pandas as pd
 from io import BytesIO
@@ -27,7 +27,7 @@ class KRX:
         df = pd.DataFrame(req.json()['block1'])
         return df
 
-    # KRX -> 지수 -> 주가지수 -> KOSPI 시리즈
+    # 지수 -> 주가지수 -> KOSPI 시리즈
     def get_kospi_200(self, date):
         url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
         header = {'User-Agent': 'Chrome/78 Safari/537'}
@@ -57,7 +57,7 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
         return df
 
-    # JJM
+    # 주식 -> 종목정보 -> 일자별시세
     def get_ticker(self, code, from_date, to_date):
         url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
         header = {'User-Agent': 'Chrome/78 Safari/537'}
@@ -195,74 +195,33 @@ class KRX:
         df = pd.read_excel(BytesIO(r.content))
         return df
 
-    def get_indices(self, from_date='20200505', to_date='20200505', period='day', type='kospi'):
-        get_req_url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
-
-        query_str_params = {
-            'name': 'fileDown',
-            'filetype': 'xls',
-            'url': "MKD/13/1301/13010104/mkd13010104_02",
-            'type': type,
-            'period_selector': period,
-            'fromdate': from_date,
-            'todate': to_date,
-            'pagePath': "/contents/MKD/13/1301/13010104/MKD13010104.jsp"
-        }
-
-        header_data = {
-            'User-Agent': 'Chrome/78 Safari/537',
-        }
-
-        r = requests.get(get_req_url, query_str_params, headers=header_data)
-
-        gen_req_url = 'http://file.krx.co.kr/download.jspx'
-        headers = {
-            'Referer': "http://marketdata.krx.co.kr/contents/MKD/13/1301/13010104/MKD13010104.jsp",
-            'User-Agent': 'Chrome/78 Safari/537',
-        }
-
-        form_data = {
-            'code': r.content
-        }
-
-        r = requests.post(gen_req_url, form_data, headers=headers)
-        df = pd.read_excel(BytesIO(r.content))
-
-        return df
-
-    def get_indices2(self):
+    # 지수 -> 주가지수 -> KOSPI시리즈 -> 코스피 200
+    def get_indices(self, from_date, to_date):
         url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
         header = {'User-Agent': 'Chrome/78 Safari/537'}
         param = {
-            'name': 'fileDown',
-            'filetype': 'xls',
-            'url': 'MKD/03/0304/03040101/mkd03040101T2_02',
-            'idx_cd': '1028',
-            'ind_tp_cd': '1',
-            'idx_ind_cd': '028',
-            'add_data_yn': '',
-            'bz_dd': '20200529',
-            'indexname': '%EC%A7%80%EC%88%98%EB%AA%85%EC%9D%84+%EC%9E%85%EB%A0%A5%ED%95%B4+%EC%A3%BC%EC%84%B8%EC%9A%94.',
-            'chartType': 'line',
-            'chartStandard': 'srate',
-            'fromdate': '20200427',
-            'todate': '20200529',
-            'pagePath': '/contents/MKD/03/0304/03040101/MKD03040101T2.jsp'
+            'bld': 'MKD/03/0304/03040101/mkd03040101T2_02',
+            'name': 'form'
         }
 
         r = requests.get(url, headers=header, params=param)
 
-        url = 'http://file.krx.co.kr/download.jspx'
+        url = 'http://marketdata.krx.co.kr/contents/MKD/99/MKD99000001.jspx'
         header = {
             'Referer': "http://marketdata.krx.co.kr/mdi",
             'User-Agent': 'Chrome/78 Safari/537'
         }
-        param = {'code': r.content}
+        param = {
+            'idx_cd': '1028',
+            'ind_tp_cd': '1',
+            'idx_ind_cd': '028',
+            'fromdate': from_date,
+            'todate': to_date,
+            'pagePath': '/contents/MKD/03/0304/03040101/MKD03040101T2.jsp',
+            'code': r.content
+        }
 
         r = requests.post(url, headers=header, params=param)
 
-        df = pd.read_excel(BytesIO(r.content), thousands=',')
+        df = pd.DataFrame(json.loads(r.text)['output'])
         return df
-
-
-print(KRX().get_indices())

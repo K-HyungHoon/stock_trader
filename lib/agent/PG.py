@@ -40,8 +40,7 @@ class PG:
         state = np.vstack(self.state_memory)
         reward = np.vstack(self.reward_memory)
 
-        loss = self.model.train_on_batch(state,
-                                         reward)
+        loss = self.model.train_on_batch(state, reward)
 
         self.memory_reset()
 

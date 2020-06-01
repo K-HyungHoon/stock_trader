@@ -9,7 +9,7 @@ from lib.env.render import Confusion
 
 
 class Kospi200_Env(gym.Env):
-    def __init__(self, history, changes, labels, window_size=5):
+    def __init__(self, history, changes, labels, indices, window_size=5):
         super(Kospi200_Env, self).__init__()
         self.live = Confusion()
 
@@ -17,6 +17,7 @@ class Kospi200_Env(gym.Env):
         self.changes = changes
 
         self.labels = labels
+        self.indices = indices
         self.window_size = window_size
 
         self.num_company = self.history.shape[0]
@@ -28,7 +29,8 @@ class Kospi200_Env(gym.Env):
     def step(self, action):
         self.action = action
         self.change = self.changes[self.current_step + self.window_size]
-        self.reward = self.change * action
+        self.reward = self.change * self.action
+        # self.reward = np.log(self.change/self.indices)
 
         self._reward_scaling()
 
