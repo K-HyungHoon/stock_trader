@@ -1,5 +1,6 @@
 import os
 import datetime
+import pickle
 from tqdm import tqdm
 from lib.utils.KRX import KRX
 
@@ -7,7 +8,8 @@ from lib.utils.KRX import KRX
 def download(path, name='KOSPI200'):
     data_path = os.path.join(path, name)
     # today = datetime.datetime.now().strftime('%Y%m%d')
-    today = '20200515'
+    today = '20200605'
+    start_date = '20190909'
 
     try:
         if not os.path.exists(data_path):
@@ -32,17 +34,21 @@ def download(path, name='KOSPI200'):
     # [일자(trd_dd), 현재지수(clsprc_idx), 대비(fluc_tp_cd, cmpprevdd_idx), 등락률(fluc_rt),
     # 배당수익률(div_yd), 주가이익비율(wt_per), 주가자산비율(wt_stkprc_netasst_rto), 시가지수(opnprc_idx),
     # 고가지수(hgprc_idx), 저가지수(lwprc_idx), 거래량(acc_trdvol), 거래대금(acc_trdval), 상장시가총액(mktcap)]
-    kospi_200_indices = krx.get_indices('20200102', today)
+    kospi_200_indices = krx.get_indices(start_date, today)
     kospi_200_indices.drop(kospi_200_indices.index[0], inplace=True)
     kospi_200_indices.to_excel(path + '/KOSPI200_indices.xlsx')
+
+    code_table = {}
 
     for i in tqdm(kospi_200['종목코드'], total=len(kospi_200['종목코드'])):
         i = 'A' + str(i).zfill(6)
         code = company.loc[company['short_code'] == i, ['full_code', 'codeName']]
 
+        code_table[code['full_code'].values[0]] = code['codeName'].values[0]
+
         # 기업 정보
         # [년/월/일, 종가, 대비, 거래량(주), 거래대금(원), 시가, 고가, 저가, 시가총액(백만), 상장주식수(주)]
-        ticker = krx.get_ticker(code['full_code'], '20200102', today)
+        ticker = krx.get_ticker(code['full_code'], start_date, today)
         ticker = ticker.sort_values('년/월/일')
 
         # 전날 종가 / 전날 시가 (Close(t-1) / Open(t-1))
@@ -77,8 +83,8 @@ def download(path, name='KOSPI200'):
         cc = (ticker['종가'] - ticker['종가'].shift(1)) / ticker['종가'].shift(1)
         ticker['CC'] = cc
 
-        # 대비율 = 현재 대비 / 전날 종가
-        contrast_ratio = (ticker['대비'] / ticker['종가'].shift(1))
+        # 대비율 = 현재 종가 / 전날 종가
+        contrast_ratio = (ticker['종가'] / ticker['종가'].shift(1))
         ticker['대비율'] = contrast_ratio
 
         # 거래율 = 거래량 / 상장주식수
@@ -89,3 +95,6 @@ def download(path, name='KOSPI200'):
 
         ticker.to_excel('{}/{}_{}.xlsx'.format(data_path, code['full_code'].values[0], code['codeName'].values[0]),
                         index=False)
+
+    with open('code_table.pkl', 'wb') as f:
+        pickle.dump(code_table, f)

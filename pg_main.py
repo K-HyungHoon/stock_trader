@@ -4,26 +4,28 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from lib.env import Kospi200_Env
 from lib.utils import get_data, download
-from lib.agent.PG import PG
+from lib.agents import PGAgent
 
 
 def main(args):
     # get utils
-    datas, changes, labels, indices = get_data(args.path)
+    datas, changes, code_table, _ = get_data(args.path)
     num_company, period, num_feature = datas.shape
 
     # parameter
-    input_shape = (num_company, args.window_size, num_feature)
-    optimizer = tf.keras.optimizers.Adam()
-    loss = 'binary_crossentropy'
+    state_shape = (num_company, args.window_size, num_feature)
+    action_shape = num_company
 
-    # agent
-    agent = PG(input_shape, optimizer, loss)
-    agent.summary()
+    agent = PGAgent(state_shape,
+                    action_shape)
 
     # env
-    env = Kospi200_Env(datas, changes, labels, indices, window_size=args.window_size)
+    env = Kospi200_Env(datas,
+                       changes,
+                       code_table,
+                       window_size=args.window_size)
 
+    # log
     total_reward_log = []
 
     # train
@@ -31,29 +33,27 @@ def main(args):
         state = env.reset()
 
         total_reward = 0
-        total_loss = 0
 
         while True:
             action = agent.get_action(state)
-            next_state, reward, done = env.step(action)
 
-            agent.memorize(state, reward)
+            next_state, rewards, done = env.step(action)
 
-            env.render(mode='confusion')
-            loss = agent.learn()
-            total_loss += loss
+            agent.memorize(state, action, rewards)
+
+            total_reward += rewards
 
             if done:
+                agent.learn()
                 break
 
-            total_reward += reward
+            env.render(mode='print')
             state = next_state
 
         total_reward_log.append(sum(total_reward))
 
         print(f"\n + EPISODE: [{args.num_episode} / {e}] \n"
-              f"   + REWARD : {sum(total_reward)} \n"
-              f"   + LOSS   : {total_loss}")
+              f"   + TOTAL REWARD : {sum(total_reward)}")
 
     plt.plot(total_reward_log)
     plt.show()

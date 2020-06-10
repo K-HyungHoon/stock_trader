@@ -71,7 +71,7 @@ data | KOSPI200 | company 1
 #### Structure
 
 ```python
-# lib/agent/PG.py
+# lib/agent/agents.py
 
 model = tf.keras.Sequential()
             model.add(Conv2D(128, kernel_size=(1, 3), strides=1, activation="relu", input_shape=input_shape))
