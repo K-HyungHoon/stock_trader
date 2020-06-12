@@ -1,4 +1,5 @@
 import tensorflow as tf
+import datetime
 import argparse
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -47,7 +48,7 @@ def main(args):
                 agent.learn()
                 break
 
-            env.render(mode='print')
+            # env.render(mode='print')
             state = next_state
 
         total_reward_log.append(sum(total_reward))
@@ -60,17 +61,21 @@ def main(args):
 
 
 if __name__ == "__main__":
+    today = datetime.datetime.now().strftime('%Y%m%d')
+
     # parser
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_episode', type=int, default=1000)
     parser.add_argument('--window_size', type=int, default=10)
     parser.add_argument('--path', type=str, default="./data")
     parser.add_argument('--download', action='store_true')
+    parser.add_argument('--start_date', type=str, default=today)
+    parser.add_argument('--end_date', type=str, default=today)
     args = parser.parse_args()
 
     if args.download:
         print("Data Download...")
-        download(args.path)
+        download(args.path, args.start_date, args.end_date, args.window_size)
     else:
         print("Market Start")
         main(args)
