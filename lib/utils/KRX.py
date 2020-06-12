@@ -225,3 +225,31 @@ class KRX:
 
         df = pd.DataFrame(json.loads(r.text)['output'])
         return df
+
+    # 시장정보 -> 시장동향 -> 증시일정 -> 휴장일
+    def get_holiday(self, year):
+        url = 'http://marketdata.krx.co.kr/contents/COM/GenerateOTP.jspx'
+        header = {'User-Agent': 'Chrome/78 Safari/537'}
+        param = {
+            'bld': 'MKD/01/0110/01100305/mkd01100305_01',
+            'name': 'form'
+        }
+
+        r = requests.get(url, headers=header, params=param)
+
+        url = 'http://marketdata.krx.co.kr/contents/MKD/99/MKD99000001.jspx'
+        header = {
+            'Referer': "http://marketdata.krx.co.kr/mdi",
+            'User-Agent': 'Chrome/78 Safari/537'
+        }
+        param = {
+            'search_bas_yy': year,
+            'gridTp': 'KRX',
+            'pagePath': '/contents/MKD/01/0110/01100305/MKD01100305.jsp',
+            'code': r.content
+        }
+
+        r = requests.post(url, headers=header, params=param)
+
+        df = pd.DataFrame(json.loads(r.text)['block1'])
+        return df

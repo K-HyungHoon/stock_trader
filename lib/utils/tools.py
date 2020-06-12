@@ -1,11 +1,11 @@
 import os
+import pickle
 import numpy as np
 import pandas as pd
-import pickle
 from tqdm import tqdm
 
 
-def get_data(path, name='KOSPI200'):
+def get_data(path, name='KOSPI200_modified'):
     """
     :param
     path: CSV Folder Root Path
@@ -17,7 +17,7 @@ def get_data(path, name='KOSPI200'):
     changes = []
 
     # 코스피 200 지수
-    df_indices = pd.read_excel(path + f'/{name}_indices.xlsx')
+    df_indices = pd.read_excel(path + '/KOSPI200_indices.xlsx')
     indices = df_indices['fluc_rt'].tolist()
 
     with open('code_table.pkl', 'rb') as f:
