@@ -56,12 +56,10 @@ def main(args):
 
     save_pkl(total_reward_log, os.path.join(args.log_path, f"{num_feature}f"
                                                            f"_{args.window_size}w"
-                                                           f"_{args.output}"
                                                            f"_reward.pkl"))
 
     agent.model.save_weights(os.path.join(args.checkpoint, f"{num_feature}f"
-                                                           f"_{args.window_size}w"
-                                                           f"_{args.output}.h5"))
+                                                           f"_{args.window_size}w.h5"))
 
 
 if __name__ == "__main__":

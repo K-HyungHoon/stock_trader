@@ -67,6 +67,9 @@ class PGAgent:
         rewards = np.vstack(self.reward_memory).reshape(-1)
         actions = np.vstack(self.action_memory)
 
+        rewards -= np.mean(rewards)
+        rewards /= np.std(rewards)
+
         self.optimizer([states, actions, rewards])
 
         self.memory_reset()

@@ -15,41 +15,45 @@ def main(args):
 
     code_table = list(code_table.items())
 
-    print(code_table)
-
     agent = PGAgent(state_shape,
                     action_shape,
-                    output=args.output,
                     load_path=args.load_path)
 
-    obs = datas[:, -args.window_size-1:-1]
+    total_reward = 0
+    pos_count = 0
+    neg_count = 0
 
-    print(obs)
+    for p in range(period - args.window_size + 1):
+        obs = datas[:, p: p + args.window_size]
+        obs = np.expand_dims(obs, axis=0)
 
-    obs = np.expand_dims(obs, axis=0)
+        action = agent.get_action(obs)
+        one_hot_action = np.zeros_like(action)
+        prop_action = np.random.choice(range(num_company), 1, p=action, replace=False)
+        for p in prop_action:
+            one_hot_action[p] = 1
 
-    action = agent.get_action(obs)
+        dict_actions = {i: r for i, r in enumerate(action)}
 
-    dict_actions = {i: r for i, r in enumerate(action)}
+        sorted_dict_actions = sorted(dict_actions.items(),
+                                     reverse=True,
+                                     key=lambda item: item[1])
 
-    sorted_dict_actions = sorted(dict_actions.items(),
-                                 reverse=True,
-                                 key=lambda item: item[1])
+        for i, a in enumerate(sorted_dict_actions[:1]):
+            print(f"TOP {i + 1} [{code_table[a[0]]}]")
 
-    for i, a in enumerate(sorted_dict_actions[:5]):
-        print(f"TOP {i + 1} [{code_table[a[0]]}]")
+    print(f"TOTAL REWARD : {total_reward}")
+    print(f"POS : {pos_count}")
+    print(f"NEG : {neg_count}")
 
 
 if __name__ == "__main__":
     # parser
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--window_size', type=int, default=30)
+    parser.add_argument('--window_size', type=int, default=15)
     parser.add_argument('--data_path', type=str, default="./data")
-    parser.add_argument('--load_path', type=str, default="./checkpoint/4f_30w_0001_softmax.h5")
-    parser.add_argument('--output', type=str, default="softmax", help="[tanh | sigmoid | softmax]")
+    parser.add_argument('--load_path', type=str, default="./checkpoint/4f_15w_001_norm.h5")
     args = parser.parse_args()
-
-    print(f"PG {args.output} Start")
 
     main(args)
