@@ -5,9 +5,7 @@ Hallym Univ. Reinforcement Project
 - korea stock market : KOSPI200
 - reinforcement learning
 
-## 📳 Day Bot 
-
-KOSPI200에서 투자할 회사를 선택해주는 Bot
+---
 
 ## 🌈 Data
 
@@ -16,59 +14,64 @@ KOSPI200에서 투자할 회사를 선택해주는 Bot
 #### Download
 
 ```shell script
-python main.py --download
+python download --start_date [DATE] --end_date [DATE]
 ```
 
-#### File Structure
+---
 
+## 📳 Day Bot 
+
+KOSPI200에서 투자할 회사를 선택해주는 Bot
+
+#### Train
+
+```shell script
+python train.py
 ```
-data | KOSPI200 | company 1
-     |          | company 2
-     |          | ...
-     |
-     | KOSPI200_list
-     | KRX_list
+
+#### Test
+
+```shell script
+python test.py --load_path [./checkpoint/YOUR_MODEL]
 ```
+
+---
 
 ## 🍩 Env
 
 #### Reward
+
+- 한 회사의 확률 값
+
 ```
-# lib/env/market.py
-
-보상(대비율) : $\frac{Change_{t}}{Close_{t-1}}$
-                    |
-                  표준화
+reward = change(CC) * action(one-hot encoding vector)
 ```
 
-- 수정 요망
-
-#### Render
-
-- 실시간 Confusion Matrix 준비중
-
-
-## 🏓 Model
-
-- Policy Gradient
-
-### Input Data
+#### State
 
 ```math
 - Input Shape : (num company, window size, num feature)
 
 - Num company : 200 -> 200개의 회사 데이터
 - Window size : 10  -> 10일씩 본다. 즉, 2주
-- Num feature : CO, HO, LO, OO, 거래율, 대비율
-    + CO : Close(t-1) / Open(t-1)
-    + HO : High(t-1) / Open(t-1)
-    + LO : Low(t-1) / Open(t-1)
-    + OO : Open(t) / Open(t-1)
-    + 거래율 : Volume(t) / Total Share
-    + 대비율 : Change(t) / Close(t-1)
+- Num feature : CO, HO, LO, OO, CC, HC, LC, OC, 거래율, 대비율
+    + CO : Close(T-1) / Open(T-1)
+    + HO : High(T-1) / Open(T-1)
+    + LO : Low(T-1) / Open(T-1)
+    + OO : Open(T) / Open(T-1)
+    + CC : (Close(T)-Close(T-1)) / Close(T-1)
+    + HC : (High(T)-Close(T)) / Close(T)
+    + LC : (Low(T)-Close(T)) / Close(T)
+    + OC : (Open(T)-Close(T-1)) / Close(T-1)
+    + 거래율 : Volume(T) / Total Share
+    + 대비율 : Change(T) / Close(T-1)
 ```
 
-#### Structure
+---
+
+## 🤖 Agent
+
+#### Model
 
 ```python
 # lib/agent/agents.py
@@ -81,8 +84,6 @@ model = tf.keras.Sequential()
             model.add(Flatten())
 
 Optimizer = Adam
-
-Loss = Binary CrossEntropy
 ```
 
 ## Reference 
