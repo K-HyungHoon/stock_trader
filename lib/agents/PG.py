@@ -8,15 +8,19 @@ from keras import backend as K
 class PGAgent:
     def __init__(self,
                  state_size,
-                 action_size):
+                 action_size,
+                 load_path=None):
         self.memory_reset()
         self.state_size = state_size
         self.action_size = action_size
 
-        self.learning_rate = 0.0001
+        self.learning_rate = 0.001
 
         self.model = self.build_model()
         self.optimizer = self.build_optimizer()
+
+        if load_path is not None:
+            self.model.load_weights(load_path)
 
     def build_model(self):
         model = Sequential()
@@ -36,7 +40,7 @@ class PGAgent:
         action = K.placeholder(shape=[None, self.action_size])
         rewards = K.placeholder(shape=[None, ])
 
-        action_prob = K.sum(action * self.model.output, axis=0)
+        action_prob = K.sum(self.model.output * action, axis=1)
         cross_entropy = K.log(action_prob) * rewards
         loss = -K.sum(cross_entropy)
 
@@ -47,16 +51,27 @@ class PGAgent:
         return train
 
     def get_action(self, state):
-        action = self.model.predict(state, batch_size=1).flatten()
+        action = self.model.predict(state).flatten()
 
-        return action
+        one_hot_action = np.zeros_like(action)
+
+        prop_action = np.random.choice(range(self.action_size), 1, p=action, replace=False)
+
+        for p in prop_action:
+            one_hot_action[p] = 1
+
+        return one_hot_action
 
     def learn(self):
         states = np.vstack(self.state_memory)
-        rewards = np.vstack(self.reward_memory)
+        rewards = np.vstack(self.reward_memory).reshape(-1)
         actions = np.vstack(self.action_memory)
 
+        rewards -= np.mean(rewards)
+        rewards /= np.std(rewards)
+
         self.optimizer([states, actions, rewards])
+
         self.memory_reset()
 
     def memory_reset(self):
